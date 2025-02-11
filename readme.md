@@ -24,7 +24,7 @@ This project is a Node.js application that provides authentication functionality
 
 ## API Endpoints (Local)
 
-1. http://localhost:5000/api/auth/register - Register
+1. http://localhost:9000/api/auth/register - Register
 
 Body: {
     "name":"John Doe",
@@ -32,14 +32,14 @@ Body: {
     "password":"password123"
 }
 
-2. http://localhost:5000/api/auth/login - Login - POST
+2. http://localhost:9000/api/auth/login - Login - POST
 ----
 Body: {
     "email":"johndoe@gmail.com",
     "password":"password123"
 }
 
-3. http://localhost:5000/api/categories - Create Category - POST
+3. http://localhost:9000/api/categories - Create Category - POST
 Headers: 
 Authorization: Bearer <your_token_here>
 ----
@@ -49,11 +49,11 @@ Body: {
     "status":"active"
 }
 
-4. http://localhost:5000/api/categories - Get Categories - GET
+4. http://localhost:9000/api/categories - Get Categories - GET
 Headers: 
 Authorization: Bearer <your_token_here>
 
-5. http://localhost:5000/api/categories/:id - Update Category - PUT
+5. http://localhost:9000/api/categories/:id - Update Category - PUT
 Headers: 
 Authorization: Bearer <your_token_here>
 ----
@@ -63,6 +63,6 @@ Body: {
     "status":"active"
 }
 
-6. http://localhost:5000/api/categories/:id - Delete Category - DELETE
+6. http://localhost:9000/api/categories/:id - Delete Category - DELETE
 Headers: 
 Authorization: Bearer <your_token_here>
