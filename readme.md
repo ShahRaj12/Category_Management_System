@@ -11,7 +11,7 @@ This project is a Node.js application that provides authentication functionality
 3. Create env file as given below
     -> Create .env with the following varialbles
         ````
-        PORT=5000
+        PORT=9000
         JWT_SECRET=your_jwt_secret_key
         MONGO_URI=mongodb+srv://rs7875483:3332Mongo@cluster0.0wuv0.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
         ````
