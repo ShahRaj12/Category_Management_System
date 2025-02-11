@@ -1,0 +1,238 @@
+{
+	"info": {
+		"_postman_id": "c8a6a8b8-5a3b-43bf-bf2a-71a0cc84d014",
+		"name": "Category Management System Copy",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "11269922"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\":\"John Doe\",\r\n    \"email\":\"johndoe@gmail.com\",\r\n    \"password\":\"password123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://category-management-system-main-plum.vercel.app/api/auth/register",
+							"protocol": "https",
+							"host": [
+								"category-management-system-main-plum",
+								"vercel",
+								"app"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\":\"johndoe@gmail.com\",\r\n    \"password\":\"password123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://category-management-system-main-plum.vercel.app/api/auth/login",
+							"protocol": "https",
+							"host": [
+								"category-management-system-main-plum",
+								"vercel",
+								"app"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Category CRUD",
+			"item": [
+				{
+					"name": "Create Category",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2N2FhMmI0ZmZjOTc3NmIxMTVlMzdhOTgiLCJpYXQiOjE3MzkyMDU0OTEsImV4cCI6MTczOTgxMDI5MX0.DGHun2U5tISPK9UzzUNqrKB4CcRZCRa4wyq4bXYcPxQ",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\":\"Realme\",\r\n    \"parent\":\"67aa2c41fc9776b115e37a9d\",\r\n    \"status\":true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://category-management-system-main-plum.vercel.app/api/categories",
+							"protocol": "https",
+							"host": [
+								"category-management-system-main-plum",
+								"vercel",
+								"app"
+							],
+							"path": [
+								"api",
+								"categories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Categories",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2N2FhMmI0ZmZjOTc3NmIxMTVlMzdhOTgiLCJpYXQiOjE3MzkyMDU0OTEsImV4cCI6MTczOTgxMDI5MX0.DGHun2U5tISPK9UzzUNqrKB4CcRZCRa4wyq4bXYcPxQ",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://category-management-system-main-plum.vercel.app/api/categories",
+							"protocol": "https",
+							"host": [
+								"category-management-system-main-plum",
+								"vercel",
+								"app"
+							],
+							"path": [
+								"api",
+								"categories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Category",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2N2FhMmI0ZmZjOTc3NmIxMTVlMzdhOTgiLCJpYXQiOjE3MzkyMDU0OTEsImV4cCI6MTczOTgxMDI5MX0.DGHun2U5tISPK9UzzUNqrKB4CcRZCRa4wyq4bXYcPxQ",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\":\"Mobile Phones\",\r\n    \"status\":\"active\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://category-management-system-main-plum.vercel.app/api/categories/67aa2c41fc9776b115e37a9d",
+							"protocol": "https",
+							"host": [
+								"category-management-system-main-plum",
+								"vercel",
+								"app"
+							],
+							"path": [
+								"api",
+								"categories",
+								"67aa2c41fc9776b115e37a9d"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Category",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2N2FhMmI0ZmZjOTc3NmIxMTVlMzdhOTgiLCJpYXQiOjE3MzkyMDU0OTEsImV4cCI6MTczOTgxMDI5MX0.DGHun2U5tISPK9UzzUNqrKB4CcRZCRa4wyq4bXYcPxQ",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "https://category-management-system-main-plum.vercel.app/api/categories/67ab9e983a5f5fd23911ce62",
+							"protocol": "https",
+							"host": [
+								"category-management-system-main-plum",
+								"vercel",
+								"app"
+							],
+							"path": [
+								"api",
+								"categories",
+								"67ab9e983a5f5fd23911ce62"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
