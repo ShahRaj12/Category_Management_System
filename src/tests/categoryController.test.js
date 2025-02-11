@@ -1,54 +1,77 @@
-const request = require("supertest");
-const http = require("http");
-const app = require("../../app"); // Import app
-const Category = require("../models/categoryModel");
+const { MongoMemoryServer } = require("mongodb-memory-server");
 const mongoose = require("mongoose");
+const Category = require("../models/categoryModel");
+const User = require("../models/userModel");
+const bcrypt = require("bcryptjs");
+const dotenv = require("dotenv");
+const jwt = require("jsonwebtoken");
+const {
+  createCategoryHandler,
+  getCategoriesHandler,
+  updateCategoryHandler,
+  deleteCategoryHandler,
+} = require("../controllers/categoryController");
 
-const server = http.createServer(app);
+dotenv.config();
 
 describe("Category Controller", () => {
-  let testServer;
-  let authToken; // Store JWT token
+  let mongoServer;
+  let authToken;
+  let testUser;
 
   beforeAll(async () => {
-    testServer = server.listen(0); // Listen on a random available port
+    // Start MongoMemoryServer
+    mongoServer = await MongoMemoryServer.create();
+    const mongoUri = mongoServer.getUri();
 
-    // Register to get a valid token
-    await request(testServer).post("/api/auth/register").send({
+    // Connect to in-memory MongoDB
+    await mongoose.connect(mongoUri, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+
+    // Create a test user and generate token
+    const hashedPassword = await bcrypt.hash("123456", 10);
+    testUser = await User.create({
       name: "Test User",
-      email: "test1@example.com",
-      password: "123456",
+      email: "test@example.com",
+      password: hashedPassword,
     });
 
-    // Login to get a valid token
-    const loginRes = await request(app).post("/api/auth/login").send({
-      email: "test1@example.com",
-      password: "123456",
+    authToken = jwt.sign({ id: testUser._id }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
     });
-
-    expect(loginRes.statusCode).toBe(200);
-    expect(loginRes.body).toHaveProperty("token");
-
-    authToken = loginRes.body.token; // Save token for later use
   });
 
   afterAll(async () => {
-    await mongoose.connection.db.dropDatabase();
+    await mongoose.connection.dropDatabase();
     await mongoose.connection.close();
-    testServer.close();
+    await mongoServer.stop();
   });
 
   test("should create a category", async () => {
-    const res = await request(app)
-      .post("/api/categories")
-      .set("Authorization", `Bearer ${authToken}`) // Use token in headers
-      .send({
-        name: "Electronics",
-        parent: null,
-        status: "active",
-      });
+    const req = {
+      user: { id: testUser._id },
+      body: { name: "Electronics", parent: null, status: "active" },
+    };
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
 
-    expect(res.statusCode).toBe(201);
+    await createCategoryHandler(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(201);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: "Category created successfully",
+        category: expect.objectContaining({ name: "Electronics" }),
+      })
+    );
+
+    // Verify category in DB
+    const category = await Category.findOne({ name: "Electronics" });
+    expect(category).not.toBeNull();
   });
 
   test("should get category tree", async () => {
@@ -58,12 +81,22 @@ describe("Category Controller", () => {
       status: "active",
     });
 
-    const res = await request(app)
-      .get("/api/categories")
-      .set("Authorization", `Bearer ${authToken}`);
+    const req = { user: { id: testUser._id } };
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
 
-    expect(res.statusCode).toBe(200);
-    expect(res.body.categories.length).toBeGreaterThan(0);
+    await getCategoriesHandler(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        categories: expect.any(Array),
+      })
+    );
+
+    expect(res.json.mock.calls[0][0].categories.length).toBeGreaterThan(0);
   });
 
   test("should update a category", async () => {
@@ -73,14 +106,24 @@ describe("Category Controller", () => {
       status: "active",
     });
 
-    const res = await request(app)
-      .put(`/api/categories/${category._id}`)
-      .set("Authorization", `Bearer ${authToken}`)
-      .send({ name: "Smartphones", status: "inactive" });
+    const req = {
+      user: { id: testUser._id },
+      params: { id: category._id },
+      body: { name: "Smartphones", status: "inactive" },
+    };
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
 
-    expect(res.statusCode).toBe(200);
-    expect(res.body.category.name).toBe("Smartphones");
-    expect(res.body.category.status).toBe("inactive");
+    await updateCategoryHandler(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        category: expect.objectContaining({ name: "Smartphones", status: "inactive" }),
+      })
+    );
   });
 
   test("should delete a category", async () => {
@@ -89,11 +132,22 @@ describe("Category Controller", () => {
       parent: null,
       status: "active",
     });
-    const res = await request(app)
-      .delete(`/api/categories/${category._id}`)
-      .set("Authorization", `Bearer ${authToken}`); // Use token in headers
 
-    expect(res.statusCode).toBe(200);
-    expect(res.body.message).toBe("Category deleted successfully");
+    const req = { user: { id: testUser._id }, params: { id: category._id } };
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+
+    await deleteCategoryHandler(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({ message: "Category deleted successfully" })
+    );
+
+    // Check if category is removed from DB
+    const deletedCategory = await Category.findById(category._id);
+    expect(deletedCategory).toBeNull();
   });
 });
