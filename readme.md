@@ -8,18 +8,12 @@ This project is a Node.js application that provides authentication functionality
     git clone https://github.com/ShahRaj12/Category_Management_System
 2. Navigate to the project directory:
     cd Category_Management_System-main
-3. Create env files as given below
+3. Create env file as given below
     -> Create .env with the following varialbles
         ````
         PORT=5000
         JWT_SECRET=your_jwt_secret_key
         MONGO_URI=mongodb+srv://rs7875483:3332Mongo@cluster0.0wuv0.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
-        ````
-    -> Create .env.test
-        ````
-        PORT=5000
-        JWT_SECRET=your_jwt_secret_key11
-        MONGO_URI=mongodb+srv://shahraj907:3332Mongo@cluster0.fcqjz.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
         ````
 4. Install the dependencies:
     npm install
