@@ -1,4 +1,4 @@
-# Node Auth Project
+# Category Management Project
 
 This project is a Node.js application that provides authentication functionality. It includes user registration, login, and protected routes.
 
