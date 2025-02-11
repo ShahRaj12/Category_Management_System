@@ -1,58 +1,121 @@
-const request = require("supertest");
-const http = require("http");
-const app = require("../../app"); // Import app
-const server = http.createServer(app);
+const { MongoMemoryServer } = require("mongodb-memory-server");
 const mongoose = require("mongoose");
+const User = require("../models/userModel");
+const bcrypt = require("bcryptjs");
+const { register, login } = require("../controllers/authController");
 
 describe("Auth Controller", () => {
-  let testServer;
+  let mongoServer;
 
-  beforeAll(() => {
-    testServer = server.listen(0); // Listen on a random available port
+  beforeAll(async () => {
+    // Start MongoMemoryServer
+    mongoServer = await MongoMemoryServer.create();
+    const mongoUri = mongoServer.getUri();
+
+    // Connect to in-memory MongoDB
+    await mongoose.connect(mongoUri, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+
+    // Insert test user
+    const userData = {
+      name: "New User",
+      email: "test@example.com",
+      password: "123456",
+    };
+
+    const req = { body: userData };
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+
+    await register(req, res);
   });
 
   afterAll(async () => {
-    await mongoose.connection.db.dropDatabase();
+    await mongoose.connection.dropDatabase();
     await mongoose.connection.close();
-    testServer.close();
+    await mongoServer.stop();
   });
 
   test("should register a new user", async () => {
-    const res = await request(testServer).post("/api/auth/register").send({
-      name: "Test User",
-      email: "test@example.com",
-      password: "123456",
-    });
+    const userData = {
+      name: "New User",
+      email: "newuser@example.com",
+      password: "password123",
+    };
 
-    expect(res.statusCode).toBe(201);
-  });
+    const req = { body: userData };
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
 
-  test("should not register with duplicate email", async () => {
-    const res = await request(app).post("/api/auth/register").send({
-      name: "Test User",
-      email: "test@example.com",
-      password: "123456",
-    });
+    await register(req, res);
 
-    expect(res.statusCode).toBe(400);
-    expect(res.body.message).toBe("User already exists");
+    expect(res.status).toHaveBeenCalledWith(201);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({ message: "User registered successfully" })
+    );
+
+    // Check if user is in database
+    const savedUser = await User.findOne({ email: userData.email });
+    expect(savedUser).not.toBeNull();
   });
 
   test("should login with valid credentials", async () => {
-    const res = await request(app)
-      .post("/api/auth/login")
-      .send({ email: "test@example.com", password: "123456" });
+    const req = {
+      body: { email: "test@example.com", password: "123456" },
+    };
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
 
-    expect(res.statusCode).toBe(200);
-    expect(res.body).toHaveProperty("token");
+    await login(req, res);
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({ message: "Login successfull" })
+    );
+  });
+
+  test("should not register with duplicate email", async () => {
+    const req = {
+      body: {
+        name: "Test User",
+        email: "test@example.com",
+        password: "123456",
+      },
+    };
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+
+    await register(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({ message: "User already exists" })
+    );
   });
 
   test("should reject invalid login", async () => {
-    const res = await request(app)
-      .post("/api/auth/login")
-      .send({ email: "wrong@example.com", password: "wrongpass" });
+    const req = {
+      body: { email: "wrong@example.com", password: "wrongpass" },
+    };
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
 
-    expect(res.statusCode).toBe(401);
-    expect(res.body.message).toBe("Invalid email or password");
+    await login(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({ message: "Invalid email or password" })
+    );
   });
 });
